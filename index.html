@@ -17,7 +17,7 @@
     body {
       background-color: #0b0b0f;
       color: #fff;
-      font-family: 'Courier New', Courier, monospace;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -58,6 +58,7 @@
       color: #ff3333;
       text-shadow: 2px 2px #ffcc00;
       letter-spacing: 2px;
+      font-family: 'Courier New', Courier, monospace;
     }
 
     /* Tela CRT */
@@ -132,70 +133,80 @@
       box-shadow: 0 4px #521515;
       font-family: 'Courier New', Courier, monospace;
     }
-    .exit-btn:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px #521515;
-    }
 
-    /* App Isolado do Cofre */
+    /* --- GALERIA/COFRE ESTILO GOOGLE FOTOS --- */
     #vaultApp {
       display: none;
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #0d0d12; z-index: 1000;
-      flex-direction: column; align-items: center;
-      padding: 20px;
-      font-family: 'Courier New', Courier, monospace;
-    }
-    .vault-header {
-      width: 100%; max-width: 500px;
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 2px solid #00ffcc;
-      padding-bottom: 12px; margin-bottom: 20px;
-    }
-    .vault-header h2 { color: #00ffcc; font-size: 15px; letter-spacing: 1px; }
-    .back-game-btn {
-      background: #ff3333; color: #fff; border: none;
-      padding: 6px 12px; border-radius: 4px; font-size: 11px;
-      cursor: pointer; font-weight: bold;
+      background: #121212; z-index: 1000;
+      flex-direction: column;
     }
 
-    .vault-body {
-      width: 100%; max-width: 500px;
-      display: flex; flex-direction: column; flex: 1; overflow: hidden;
+    /* Top Bar Google Fotos */
+    .photos-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: #1f1f1f; color: #fff;
     }
-    .upload-box {
-      border: 2px dashed #00ffcc; padding: 15px; text-align: center;
-      border-radius: 8px; margin-bottom: 15px; background: rgba(0,255,204,0.03);
+    .backup-badge {
+      display: flex; align-items: center; gap: 6px; background: #2d2d2d;
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    }
+    .backup-badge::before { content: '☁️'; font-size: 14px; }
+    .profile-icon {
+      width: 32px; height: 32px; background: #6200ee; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;
+    }
+
+    /* Área Central de Conteúdo */
+    .photos-content {
+      flex: 1; overflow-y: auto; padding: 4px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .folder-picker-card {
+      background: #1e1e24; border-radius: 12px; padding: 16px; margin: 8px;
+      text-align: center; border: 1px solid #333;
     }
     .select-folder-btn {
-      background: #00ffcc; color: #000; border: none;
-      padding: 8px 16px; border-radius: 6px; font-weight: bold;
-      cursor: pointer; font-size: 12px; margin-top: 8px;
+      background: #a8c7fa; color: #042e6f; border: none;
+      padding: 10px 20px; border-radius: 20px; font-weight: 600;
+      cursor: pointer; font-size: 13px; margin-top: 10px;
     }
 
+    /* Grelha de Mídias */
     .gallery-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 10px; overflow-y: auto; flex: 1; padding-right: 4px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
     }
     .media-card {
-      position: relative; background: #000; border-radius: 6px; overflow: hidden; height: 100px;
-      border: 1px solid #222;
+      position: relative; width: 100%; aspect-ratio: 1 / 1; background: #000;
+      overflow: hidden;
     }
-    .media-card img, .media-card video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+    .media-card img, .media-card video { width: 100%; height: 100%; object-fit: cover; }
     .delete-media {
-      position: absolute; top: 4px; right: 4px; background: rgba(255,0,0,0.85);
+      position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6);
       color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px;
-      font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
 
-    /* Lightbox de Visualização Interna */
+    /* Floating / Navigation Bottom Bar */
+    .photos-bottombar {
+      display: flex; justify-content: space-around; align-items: center;
+      background: #1f1f1f; padding: 8px 16px; border-top: 1px solid #2d2d2d;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: #c4c7c5; font-size: 11px; background: none; border: none; cursor: pointer;
+    }
+    .nav-item.active { color: #a8c7fa; font-weight: 600; }
+    .nav-icon { font-size: 18px; }
+
+    /* Lightbox */
     #lightboxModal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center;
-      flex-direction: column; padding: 20px;
+      background: #000; z-index: 2000; align-items: center; justify-content: center;
+      flex-direction: column;
     }
-    #lightboxContainer { display: flex; align-items: center; justify-content: center; max-width: 90%; max-height: 80vh; }
-    .close-lightbox { margin-top: 15px; background: #00ffcc; color: #000; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    #lightboxContainer { display: flex; align-items: center; justify-content: center; width: 100%; height: 85%; }
+    .close-lightbox { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -225,35 +236,55 @@
     </div>
   </div>
 
-  <!-- App Isolado do Cofre -->
+  <!-- App Galeria Estilo Google Fotos -->
   <div id="vaultApp">
-    <div class="vault-header">
-      <h2>📁 COFRE NA PASTA DO APARELHO</h2>
-      <button class="back-game-btn" id="closeVaultAppBtn">&larr; Voltar ao Jogo</button>
+    <div class="photos-topbar">
+      <div class="backup-badge" id="folderStatus">Backup concluído</div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <button id="closeVaultAppBtn" style="background:none; border:none; color:#a8c7fa; font-size:12px; font-weight:bold; cursor:pointer;">Voltar ao Jogo</button>
+        <div class="profile-icon">G</div>
+      </div>
     </div>
-    <div class="vault-body">
-      <div class="upload-box">
-        <p style="font-size: 11px; margin-bottom: 6px; color: #00ffcc;" id="folderStatus">Selecione a pasta no aparelho:</p>
-        <button class="select-folder-btn" id="selectFolderBtn">Escolher Pasta</button>
+
+    <div class="photos-content">
+      <div class="folder-picker-card">
+        <p style="font-size: 13px; color: #e3e2e6;">Vincular pasta do dispositivo para backup local</p>
+        <button class="select-folder-btn" id="selectFolderBtn">Escolher Pasta do Dispositivo</button>
         <input type="file" id="mediaInput" accept="image/*,video/*" multiple style="display:none;" />
       </div>
+
       <div id="gallery" class="gallery-grid"></div>
+    </div>
+
+    <div class="photos-bottombar">
+      <button class="nav-item active">
+        <span class="nav-icon">🖼️</span>
+        <span>Fotos</span>
+      </button>
+      <button class="nav-item" id="addMediaBtn">
+        <span class="nav-icon">➕</span>
+        <span>Adicionar</span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon">📁</span>
+        <span>Álbuns</span>
+      </button>
     </div>
   </div>
 
-  <!-- Lightbox de Visualização -->
+  <!-- Lightbox -->
   <div id="lightboxModal">
+    <button class="close-lightbox" id="closeLightboxBtn">Fechar</button>
     <div id="lightboxContainer"></div>
-    <button class="close-lightbox" id="closeLightboxBtn">FECHAR</button>
   </div>
 
   <script>
-    // --- REGISTRO DO SERVICE WORKER (FUNCIONAMENTO OFFLINE) ---
+    // --- REGISTRO DO SERVICE WORKER ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker registrado com sucesso!', reg))
-          .catch(err => console.log('Erro ao registrar Service Worker:', err));
+          .then(reg => console.log('Service Worker ativo!', reg))
+          .catch(err => console.log('Erro SW:', err));
       });
     }
 
@@ -262,16 +293,24 @@
     const selectFolderBtn = document.getElementById('selectFolderBtn');
     const mediaInput = document.getElementById('mediaInput');
     const gallery = document.getElementById('gallery');
+    const addMediaBtn = document.getElementById('addMediaBtn');
 
     selectFolderBtn.addEventListener('click', async () => {
       try {
         directoryHandle = await window.showDirectoryPicker();
-        folderStatus.innerText = `Pasta vinculada com sucesso!`;
-        selectFolderBtn.innerText = "Trocar Pasta";
-        mediaInput.style.display = 'block';
+        folderStatus.innerText = `Pasta Conectada`;
+        selectFolderBtn.innerText = "Sincronizar Outra Pasta";
         loadDeviceFolderFiles();
       } catch (err) {
-        console.log('Seleção cancelada', err);
+        console.log('Acesso cancelado', err);
+      }
+    });
+
+    addMediaBtn.addEventListener('click', () => {
+      if (!directoryHandle) {
+        alert('Por favor, vincule uma pasta primeiro clicando em "Escolher Pasta do Dispositivo"');
+      } else {
+        mediaInput.click();
       }
     });
 
@@ -291,10 +330,7 @@
     }
 
     mediaInput.addEventListener('change', async (e) => {
-      if (!directoryHandle) {
-        alert('Por favor, selecione uma pasta primeiro!');
-        return;
-      }
+      if (!directoryHandle) return;
       const files = e.target.files;
       for (let file of files) {
         const fileHandle = await directoryHandle.getFileHandle(file.name, { create: true });
@@ -318,33 +354,19 @@
     const lightboxContainer = document.getElementById('lightboxContainer');
     const closeLightboxBtn = document.getElementById('closeLightboxBtn');
 
-    closeVaultAppBtn.addEventListener('click', () => {
-      vaultApp.style.display = 'none';
-    });
+    closeVaultAppBtn.addEventListener('click', () => { vaultApp.style.display = 'none'; });
 
+    // Acesso secreto: 12 toques rápidos no botão SAIR
     let clickCount = 0;
     let clickTimer = null;
-    const secretExitBtn = document.getElementById('secretExitBtn');
-
-    secretExitBtn.addEventListener('click', () => {
+    document.getElementById('secretExitBtn').addEventListener('click', () => {
       clickCount++;
       clearTimeout(clickTimer);
-      
       if (clickCount >= 12) {
         vaultApp.style.display = 'flex';
         clickCount = 0;
       } else {
-        clickTimer = setTimeout(() => {
-          if (clickCount === 1) {
-            if (window.history.length > 1) {
-              window.history.back();
-            } else {
-              window.close();
-              alert('Fim da sessão do arcade.');
-            }
-          }
-          clickCount = 0;
-        }, 400);
+        clickTimer = setTimeout(() => { clickCount = 0; }, 400);
       }
     });
 
@@ -352,22 +374,13 @@
       let card = document.createElement('div');
       card.className = 'media-card';
 
-      let mediaElem;
-      if (type.startsWith('image/')) {
-        mediaElem = document.createElement('img');
-        mediaElem.src = url;
-      } else {
-        mediaElem = document.createElement('video');
-        mediaElem.src = url;
-      }
-
-      mediaElem.addEventListener('click', () => {
-        openLightbox(url, type);
-      });
+      let mediaElem = type.startsWith('image/') ? document.createElement('img') : document.createElement('video');
+      mediaElem.src = url;
+      mediaElem.addEventListener('click', () => openLightbox(url, type));
 
       let delBtn = document.createElement('button');
       delBtn.className = 'delete-media';
-      delBtn.innerHTML = '&times;';
+      delBtn.innerHTML = '✕';
       delBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         deleteDeviceFile(fileName);
@@ -382,8 +395,7 @@
       lightboxContainer.innerHTML = '';
       let elem = type.startsWith('image/') ? document.createElement('img') : document.createElement('video');
       elem.src = url;
-      elem.style.maxWidth = '100%';
-      elem.style.maxHeight = '75vh';
+      elem.style.maxWidth = '100%'; elem.style.maxHeight = '100%';
       if(type.startsWith('video/')) elem.controls = true;
       lightboxContainer.appendChild(elem);
       lightboxModal.style.display = 'flex';
@@ -398,16 +410,12 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    let score = 0;
-    let lives = 3;
-    let gameState = 'START';
+    let score = 0, lives = 3, gameState = 'START';
     let player = { x: 140, y: 340, width: 24, height: 12, speed: 4, dx: 0 };
-    let bullets = [];
-    let invaders = [];
+    let bullets = [], invaders = [];
 
     function initGame() {
-      score = 0; lives = 3; bullets = []; player.x = 140;
-      invaders = [];
+      score = 0; lives = 3; bullets = []; player.x = 140; invaders = [];
       for (let r = 0; r < 4; r++) {
         for (let c = 0; c < 8; c++) {
           invaders.push({ x: 30 + c * 32, y: 50 + r * 24, width: 18, height: 12, alive: true, type: r });
@@ -437,14 +445,10 @@
     });
 
     function fireBullet() {
-      if (bullets.length < 3) {
-        bullets.push({ x: player.x + player.width / 2 - 2, y: player.y, dy: -6 });
-      }
+      if (bullets.length < 3) bullets.push({ x: player.x + player.width / 2 - 2, y: player.y, dy: -6 });
     }
 
-    let invaderTimer = 0;
-    let invaderDir = 1;
-
+    let invaderTimer = 0, invaderDir = 1;
     function update() {
       if (gameState !== 'PLAYING') return;
       player.x += player.dx;
@@ -452,8 +456,7 @@
       if (player.x > canvas.width - player.width - 10) player.x = canvas.width - player.width - 10;
 
       for (let i = bullets.length - 1; i >= 0; i--) {
-        let b = bullets[i];
-        b.y += b.dy;
+        let b = bullets[i]; b.y += b.dy;
         if (b.y < 0) { bullets.splice(i, 1); continue; }
         for (let inv of invaders) {
           if (inv.alive && b.x > inv.x && b.x < inv.x + inv.width && b.y > inv.y && b.y < inv.y + inv.height) {
@@ -464,8 +467,7 @@
 
       invaderTimer++;
       if (invaderTimer > 30) {
-        invaderTimer = 0;
-        let hitEdge = false;
+        invaderTimer = 0; let hitEdge = false;
         for (let inv of invaders) {
           if (!inv.alive) continue;
           inv.x += invaderDir * 8;
@@ -474,8 +476,7 @@
         }
         if (hitEdge) { invaderDir *= -1; for (let inv of invaders) inv.y += 10; }
       }
-
-      if (invaders.every(inv => !inv.alive)) { gameState = 'START'; }
+      if (invaders.every(inv => !inv.alive)) gameState = 'START';
     }
 
     function draw() {
@@ -507,16 +508,11 @@
       }
 
       ctx.fillStyle = '#ffffff';
-      for (let b of bullets) { ctx.fillRect(b.x, b.y, 3, 8); }
+      for (let b of bullets) ctx.fillRect(b.x, b.y, 3, 8);
     }
 
-    function loop() {
-      update();
-      draw();
-      requestAnimationFrame(loop);
-    }
+    function loop() { update(); draw(); requestAnimationFrame(loop); }
     loop();
   </script>
 </body>
 </html>
-
