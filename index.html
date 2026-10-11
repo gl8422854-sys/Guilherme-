@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Atari 2600 Space Invaders Arcade</title>
+  
+  <meta name="theme-color" content="#2c1810">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <!-- Configuração do PWA (Bandeja de Apps) -->
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0b0b0f;
+      color: #fff;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    /* Gabinete do Arcade */
+    .cabinet {
+      position: relative;
+      background: linear-gradient(135deg, #3d2314 0%, #1f110a 100%);
+      border: 8px solid #111;
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.9);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 440px;
+      width: 100%;
+    }
+
+    /* Marquee */
+    .marquee {
+      background: #000;
+      border: 3px solid #ffcc00;
+      border-radius: 6px;
+      padding: 8px;
+      text-align: center;
+      width: 100%;
+      user-select: none;
+      box-shadow: 0 0 10px rgba(255,204,0,0.4);
+    }
+    .marquee h1 {
+      font-size: 20px;
+      color: #ff3333;
+      text-shadow: 2px 2px #ffcc00;
+      letter-spacing: 2px;
+    }
+
+    /* Tela CRT */
+    .crt-screen-container {
+      position: relative;
+      margin: 15px 0;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 6px solid #222;
+      box-shadow: inset 0 0 20px rgba(0,255,0,0.2);
+    }
+    canvas { display: block; background: #050508; }
+    .crt-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 3px 100%;
+      pointer-events: none;
+    }
+
+    /* Controles */
+    .control-panel {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 5px;
+      background: #180e0a;
+      border-radius: 8px;
+      border: 2px solid #331c12;
+    }
+    .d-pad, .action-pad { display: flex; gap: 10px; }
+    .arcade-btn {
+      background: #a62b2b;
+      color: white;
+      border: 2px solid #ff6666;
+      border-radius: 50%;
+      width: 50px; height: 50px;
+      font-size: 18px; font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px #521515;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none;
+    }
+    .arcade-btn:active { transform: translateY(3px); box-shadow: 0 1px #521515; }
+    .fire-btn {
+      background: #e6b800; border: 2px solid #ffff66;
+      box-shadow: 0 4px #7a6200; color: #000;
+      border-radius: 8px; width: 70px; height: 50px;
+    }
+    .fire-btn:active { transform: translateY(3px); box-shadow: 0 1px #7a6200; }
+
+    /* Barra Inferior com Botão Centralizado */
+    .cabinet-footer {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-top: 12px;
+      align-items: center;
+    }
+    .exit-btn {
+      background: #a62b2b;
+      color: #fff;
+      border: 2px solid #ff6666;
+      padding: 8px 24px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      letter-spacing: 1px;
+      box-shadow: 0 4px #521515;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .exit-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px #521515;
+    }
+
+    /* App Isolado do Cofre */
+    #vaultApp {
+      display: none;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #0d0d12; z-index: 1000;
+      flex-direction: column; align-items: center;
+      padding: 20px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .vault-header {
+      width: 100%; max-width: 500px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid #00ffcc;
+      padding-bottom: 12px; margin-bottom: 20px;
+    }
+    .vault-header h2 { color: #00ffcc; font-size: 15px; letter-spacing: 1px; }
+    .back-game-btn {
+      background: #ff3333; color: #fff; border: none;
+      padding: 6px 12px; border-radius: 4px; font-size: 11px;
+      cursor: pointer; font-weight: bold;
+    }
+
+    .vault-body {
+      width: 100%; max-width: 500px;
+      display: flex; flex-direction: column; flex: 1; overflow: hidden;
+    }
+    .upload-box {
+      border: 2px dashed #00ffcc; padding: 15px; text-align: center;
+      border-radius: 8px; margin-bottom: 15px; background: rgba(0,255,204,0.03);
+    }
+    .select-folder-btn {
+      background: #00ffcc; color: #000; border: none;
+      padding: 8px 16px; border-radius: 6px; font-weight: bold;
+      cursor: pointer; font-size: 12px; margin-top: 8px;
+    }
+
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; overflow-y: auto; flex: 1; padding-right: 4px;
+    }
+    .media-card {
+      position: relative; background: #000; border-radius: 6px; overflow: hidden; height: 100px;
+      border: 1px solid #222;
+    }
+    .media-card img, .media-card video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+    .delete-media {
+      position: absolute; top: 4px; right: 4px; background: rgba(255,0,0,0.85);
+      color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px;
+      font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Lightbox de Visualização Interna */
+    #lightboxModal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center;
+      flex-direction: column; padding: 20px;
+    }
+    #lightboxContainer { display: flex; align-items: center; justify-content: center; max-width: 90%; max-height: 80vh; }
+    .close-lightbox { margin-top: 15px; background: #00ffcc; color: #000; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="cabinet">
+    <div class="marquee">
+      <h1>SPACE INVADERS</h1>
+    </div>
+
+    <div class="crt-screen-container">
+      <div class="crt-overlay"></div>
+      <canvas id="gameCanvas" width="320" height="380"></canvas>
+    </div>
+
+    <div class="control-panel">
+      <div class="d-pad">
+        <button class="arcade-btn" id="leftBtn">&larr;</button>
+        <button class="arcade-btn" id="rightBtn">&rarr;</button>
+      </div>
+      <div class="action-pad">
+        <button class="arcade-btn fire-btn" id="fireBtn">FIRE</button>
+      </div>
+    </div>
+
+    <div class="cabinet-footer">
+      <button class="exit-btn" id="secretExitBtn">SAIR</button>
+    </div>
+  </div>
+
+  <!-- App Isolado do Cofre -->
+  <div id="vaultApp">
+    <div class="vault-header">
+      <h2>📁 COFRE NA PASTA DO APARELHO</h2>
+      <button class="back-game-btn" id="closeVaultAppBtn">&larr; Voltar ao Jogo</button>
+    </div>
+    <div class="vault-body">
+      <div class="upload-box">
+        <p style="font-size: 11px; margin-bottom: 6px; color: #00ffcc;" id="folderStatus">Selecione a pasta no aparelho:</p>
+        <button class="select-folder-btn" id="selectFolderBtn">Escolher Pasta</button>
+        <input type="file" id="mediaInput" accept="image/*,video/*" multiple style="display:none;" />
+      </div>
+      <div id="gallery" class="gallery-grid"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox de Visualização -->
+  <div id="lightboxModal">
+    <div id="lightboxContainer"></div>
+    <button class="close-lightbox" id="closeLightboxBtn">FECHAR</button>
+  </div>
+
+  <script>
+    // --- REGISTRO DO SERVICE WORKER (FUNCIONAMENTO OFFLINE) ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker registrado com sucesso!', reg))
+          .catch(err => console.log('Erro ao registrar Service Worker:', err));
+      });
+    }
+
+    let directoryHandle = null;
+    const folderStatus = document.getElementById('folderStatus');
+    const selectFolderBtn = document.getElementById('selectFolderBtn');
+    const mediaInput = document.getElementById('mediaInput');
+    const gallery = document.getElementById('gallery');
+
+    selectFolderBtn.addEventListener('click', async () => {
+      try {
+        directoryHandle = await window.showDirectoryPicker();
+        folderStatus.innerText = `Pasta vinculada com sucesso!`;
+        selectFolderBtn.innerText = "Trocar Pasta";
+        mediaInput.style.display = 'block';
+        loadDeviceFolderFiles();
+      } catch (err) {
+        console.log('Seleção cancelada', err);
+      }
+    });
+
+    async function loadDeviceFolderFiles() {
+      if (!directoryHandle) return;
+      gallery.innerHTML = '';
+      
+      for await (const [name, handle] of directoryHandle.entries()) {
+        if (handle.kind === 'file') {
+          const file = await handle.getFile();
+          if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+            const url = URL.createObjectURL(file);
+            renderMediaCard(url, file.type, name);
+          }
+        }
+      }
+    }
+
+    mediaInput.addEventListener('change', async (e) => {
+      if (!directoryHandle) {
+        alert('Por favor, selecione uma pasta primeiro!');
+        return;
+      }
+      const files = e.target.files;
+      for (let file of files) {
+        const fileHandle = await directoryHandle.getFileHandle(file.name, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(file);
+        await writable.close();
+      }
+      mediaInput.value = '';
+      loadDeviceFolderFiles();
+    });
+
+    async function deleteDeviceFile(fileName) {
+      if (!directoryHandle) return;
+      await directoryHandle.removeEntry(fileName);
+      loadDeviceFolderFiles();
+    }
+
+    const vaultApp = document.getElementById('vaultApp');
+    const closeVaultAppBtn = document.getElementById('closeVaultAppBtn');
+    const lightboxModal = document.getElementById('lightboxModal');
+    const lightboxContainer = document.getElementById('lightboxContainer');
+    const closeLightboxBtn = document.getElementById('closeLightboxBtn');
+
+    closeVaultAppBtn.addEventListener('click', () => {
+      vaultApp.style.display = 'none';
+    });
+
+    let clickCount = 0;
+    let clickTimer = null;
+    const secretExitBtn = document.getElementById('secretExitBtn');
+
+    secretExitBtn.addEventListener('click', () => {
+      clickCount++;
+      clearTimeout(clickTimer);
+      
+      if (clickCount >= 12) {
+        vaultApp.style.display = 'flex';
+        clickCount = 0;
+      } else {
+        clickTimer = setTimeout(() => {
+          if (clickCount === 1) {
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              window.close();
+              alert('Fim da sessão do arcade.');
+            }
+          }
+          clickCount = 0;
+        }, 400);
+      }
+    });
+
+    function renderMediaCard(url, type, fileName) {
+      let card = document.createElement('div');
+      card.className = 'media-card';
+
+      let mediaElem;
+      if (type.startsWith('image/')) {
+        mediaElem = document.createElement('img');
+        mediaElem.src = url;
+      } else {
+        mediaElem = document.createElement('video');
+        mediaElem.src = url;
+      }
+
+      mediaElem.addEventListener('click', () => {
+        openLightbox(url, type);
+      });
+
+      let delBtn = document.createElement('button');
+      delBtn.className = 'delete-media';
+      delBtn.innerHTML = '&times;';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteDeviceFile(fileName);
+      });
+
+      card.appendChild(mediaElem);
+      card.appendChild(delBtn);
+      gallery.appendChild(card);
+    }
+
+    function openLightbox(url, type) {
+      lightboxContainer.innerHTML = '';
+      let elem = type.startsWith('image/') ? document.createElement('img') : document.createElement('video');
+      elem.src = url;
+      elem.style.maxWidth = '100%';
+      elem.style.maxHeight = '75vh';
+      if(type.startsWith('video/')) elem.controls = true;
+      lightboxContainer.appendChild(elem);
+      lightboxModal.style.display = 'flex';
+    }
+
+    closeLightboxBtn.addEventListener('click', () => {
+      lightboxModal.style.display = 'none';
+      lightboxContainer.innerHTML = '';
+    });
+
+    // --- MOTOR DO JOGO SPACE INVADERS ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let score = 0;
+    let lives = 3;
+    let gameState = 'START';
+    let player = { x: 140, y: 340, width: 24, height: 12, speed: 4, dx: 0 };
+    let bullets = [];
+    let invaders = [];
+
+    function initGame() {
+      score = 0; lives = 3; bullets = []; player.x = 140;
+      invaders = [];
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 8; c++) {
+          invaders.push({ x: 30 + c * 32, y: 50 + r * 24, width: 18, height: 12, alive: true, type: r });
+        }
+      }
+    }
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') player.dx = -player.speed;
+      if (e.key === 'ArrowRight' || e.key === 'd') player.dx = player.speed;
+      if (e.key === ' ' || e.key === 'z') fireBullet();
+      if (gameState === 'START' && (e.key === ' ' || e.key === 'Enter')) { gameState = 'PLAYING'; initGame(); }
+    });
+    window.addEventListener('keyup', e => {
+      if ((e.key === 'ArrowLeft' || e.key === 'a') && player.dx < 0) player.dx = 0;
+      if ((e.key === 'ArrowRight' || e.key === 'd') && player.dx > 0) player.dx = 0;
+    });
+
+    document.getElementById('leftBtn').addEventListener('touchstart', () => { player.dx = -player.speed; });
+    document.getElementById('leftBtn').addEventListener('touchend', () => { if(player.dx < 0) player.dx = 0; });
+    document.getElementById('rightBtn').addEventListener('touchstart', () => { player.dx = player.speed; });
+    document.getElementById('rightBtn').addEventListener('touchend', () => { if(player.dx > 0) player.dx = 0; });
+    document.getElementById('fireBtn').addEventListener('touchstart', (e) => { 
+      e.preventDefault();
+      if (gameState === 'PLAYING') fireBullet(); 
+      else { gameState = 'PLAYING'; initGame(); }
+    });
+
+    function fireBullet() {
+      if (bullets.length < 3) {
+        bullets.push({ x: player.x + player.width / 2 - 2, y: player.y, dy: -6 });
+      }
+    }
+
+    let invaderTimer = 0;
+    let invaderDir = 1;
+
+    function update() {
+      if (gameState !== 'PLAYING') return;
+      player.x += player.dx;
+      if (player.x < 10) player.x = 10;
+      if (player.x > canvas.width - player.width - 10) player.x = canvas.width - player.width - 10;
+
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        let b = bullets[i];
+        b.y += b.dy;
+        if (b.y < 0) { bullets.splice(i, 1); continue; }
+        for (let inv of invaders) {
+          if (inv.alive && b.x > inv.x && b.x < inv.x + inv.width && b.y > inv.y && b.y < inv.y + inv.height) {
+            inv.alive = false; score += 10; bullets.splice(i, 1); break;
+          }
+        }
+      }
+
+      invaderTimer++;
+      if (invaderTimer > 30) {
+        invaderTimer = 0;
+        let hitEdge = false;
+        for (let inv of invaders) {
+          if (!inv.alive) continue;
+          inv.x += invaderDir * 8;
+          if (inv.x <= 10 || inv.x >= canvas.width - 25) hitEdge = true;
+          if (inv.y >= player.y - 15) gameState = 'GAMEOVER';
+        }
+        if (hitEdge) { invaderDir *= -1; for (let inv of invaders) inv.y += 10; }
+      }
+
+      if (invaders.every(inv => !inv.alive)) { gameState = 'START'; }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (gameState === 'START') {
+        ctx.fillStyle = '#00ffcc'; ctx.font = '14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('TOQUE EM FIRE OU ENTER', canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillStyle = '#ffcc00'; ctx.fillText('PARA JOGAR', canvas.width / 2, canvas.height / 2 + 10);
+        return;
+      }
+      if (gameState === 'GAMEOVER') {
+        ctx.fillStyle = '#ff3333'; ctx.font = '18px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('FIM DE JOGO', canvas.width / 2, canvas.height / 2 - 10);
+        return;
+      }
+
+      ctx.fillStyle = '#00ff00'; ctx.font = '12px Courier New'; ctx.textAlign = 'left';
+      ctx.fillText(`SCORE: ${score}`, 15, 20);
+      ctx.fillText(`LIVES: ${lives}`, canvas.width - 70, 20);
+
+      ctx.fillStyle = '#00ff00';
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+      ctx.fillRect(player.x + 8, player.y - 4, 8, 4);
+
+      for (let inv of invaders) {
+        if (!inv.alive) continue;
+        ctx.fillStyle = inv.type === 0 ? '#ff3333' : inv.type === 1 ? '#00ffff' : '#ff33ff';
+        ctx.fillRect(inv.x, inv.y, inv.width, inv.height);
+      }
+
+      ctx.fillStyle = '#ffffff';
+      for (let b of bullets) { ctx.fillRect(b.x, b.y, 3, 8); }
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>
+
